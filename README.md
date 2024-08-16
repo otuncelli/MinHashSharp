@@ -26,7 +26,7 @@ The library currently offers two classes:
 
 `MinHash`: A probabilistic data structure for computing Jaccard similarity between sets. 
 
-`MinHashLSH`: A class for supporting big-data fast querying using an approximate `Jaccard similarity` threshold.
+`MinHashLSH<TKey>`: A class for supporting big-data fast querying using an approximate `Jaccard similarity` threshold.
 
 ## Sample usage
 
@@ -39,23 +39,23 @@ var m1 = new MinHash(numPerm: 128).Update(s1.Split());
 var m2 = new MinHash(numPerm: 128).Update(s2.Split());
 var m3 = new MinHash(numPerm: 128).Update(s3.Split());
 
-Console.WriteLine(m1.Jaccard(m2));// 0.51
+Console.WriteLine(m1.GetApproximateJaccard(m2));// 0.51
 
-var lsh = new MinHashLSH(threshold: 0.8, numPerm: 128);
+var lsh = new MinHashLSH<string>(threshold: 0.8, numPerm: 128);
 
-lsh.Insert("s1", m1);
-lsh.Insert("s2", m2);
+lsh.Add("s1", m1);
+lsh.Add("s2", m2);
 
 Console.WriteLine(string.Join(", ", lsh.Query(m3))); // s1
 ```
 
 ## Multi-threading
 
-The library is entirely thread-safe except for the `MinHashLSH.Insert` function (and the custom injected hash function, if relevant). Therefore, you can create `MinHash` objects on multiple threads and query the same `MinHashLSH` object freely. If you are indexing sets on multiple threads, then just make sure to gain exclusive access to the LSH around every `Insert` call:
+The library is entirely thread-safe except for the `MinHashLSH<TKey>.Add` function (and the custom injected hash function, if relevant). Therefore, you can create `MinHash` objects on multiple threads and query the same `MinHashLSH<TKey>` object freely. If you are indexing sets on multiple threads, then just make sure to gain exclusive access to the LSH around every `Add` call:
 
 ```cs
 lock (lsh) {
-    lsh.Insert("s3", m3);
+    lsh.Add("s3", m3);
 }
 ```
 
